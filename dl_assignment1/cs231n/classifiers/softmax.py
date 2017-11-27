@@ -21,7 +21,8 @@ def softmax_loss_naive(W, X, y, reg):
   """
   # Initialize the loss and gradient to zero.
   loss = 0.0
-  dW = np.zeros_like(W)
+  dW = np.zeros_like(W) #(D, C)
+
 
   #############################################################################
   # TODO: Compute the softmax loss and its gradient using explicit loops.     #
@@ -29,7 +30,24 @@ def softmax_loss_naive(W, X, y, reg):
   # here, it is easy to run into numeric instability. Don't forget the        #
   # regularization!                                                           #
   #############################################################################
-  pass
+  C = W.shape[1]
+  N = X.shape[0]
+
+  dscores = np.zeros((N, C)) #(N, C)
+
+  for i in range(N):
+      scores = np.dot(X[i], W)
+      scores -= np.max(scores)
+      probs = np.exp(scores) / np.sum(np.exp(scores))
+      loss += -np.log(probs[y[i]])
+      dscores[i, y[i]] -= 1
+      for j in range(C):
+          dscores[i, j] += probs[j]
+
+  loss = loss / N + 0.5 * reg * np.sum(W * W)
+  dscores /= N
+  dW = np.dot(X.T, dscores)
+  dW = dW + reg * W
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
@@ -53,7 +71,21 @@ def softmax_loss_vectorized(W, X, y, reg):
   # here, it is easy to run into numeric instability. Don't forget the        #
   # regularization!                                                           #
   #############################################################################
-  pass
+  C = W.shape[1]
+  N = X.shape[0]
+
+  scores = np.dot(X, W)
+  scores -= np.max(scores, axis=1, keepdims=True)
+  exp_scores = np.exp(scores)
+  probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+  correct_logprobs = -np.log(probs[range(N), y])
+  loss = np.sum(correct_logprobs) / N + 0.5 * reg * np.sum(W * W)
+
+  dscores = probs
+  dscores[range(N), y] -= 1
+  dscores /= N
+
+  dW = np.dot(X.T, dscores) + reg * W
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
