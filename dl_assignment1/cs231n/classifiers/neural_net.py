@@ -184,7 +184,6 @@ class TwoLayerNet(object):
       self.params['b1'] -= learning_rate * grads['b1']
       self.params['W2'] -= learning_rate * grads['W2']
       self.params['b2'] -= learning_rate * grads['b2']
-      learning_rate -= learning_rate_decay
       #########################################################################
       #                             END OF YOUR CODE                          #
       #########################################################################
@@ -229,7 +228,14 @@ class TwoLayerNet(object):
     ###########################################################################
     # TODO: Implement this function; it should be VERY simple!                #
     ###########################################################################
-    pass
+    W1 = self.params['W1']
+    b1 = self.params['b1']
+    W2 = self.params['W2']
+    b2 = self.params['b2']
+
+    hidden_layer = np.maximum(np.dot(X, W1) + b1, 0)
+    scores = np.dot(hidden_layer, W2) + b2
+    y_pred = np.argmax(scores, axis = 1)
     ###########################################################################
     #                              END OF YOUR CODE                           #
     ###########################################################################
